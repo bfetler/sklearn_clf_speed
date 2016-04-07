@@ -35,7 +35,10 @@ def read_train_data(datadir, printOut=False):
     "read in raw train data"
     traindir = datadir + "train/"
     dftrain = pd.read_table(traindir + "X_train.txt", \
-        sep='\s+', header=None)    # names=dfcol['label2']
+        sep='\s+', header=None)
+    
+    if printOut:
+        print("original dftrain shape", dftrain.shape)
     
 # add column names x0-x560
     d1 = dftrain.shape[1]
@@ -45,10 +48,11 @@ def read_train_data(datadir, printOut=False):
 #    dftrain.drop(["x"+str(d1-2), "x"+str(d1-1)], axis=1, inplace=True)
     
     # drop n columns so that 512 remain  # or 544 remain
-    cols = map(lambda k: "x" + str(k), range(543, d1))
+    cols = map(lambda k: "x" + str(k), range(511, d1))
     dftrain.drop(cols, axis=1, inplace=True)
     
 # drop last 152 rows, shape now 7200 by 560 (divisible by 2, 4, 8)
+# (or keep 7232 or 7296 rows, divisible by 64 etc.)
     dftrain.drop(range(7200, dftrain.shape[0]), inplace=True)
     
     dftrain['subject'] = pd.read_table(traindir + "subject_train.txt", \
@@ -101,7 +105,7 @@ def do_fit(clf, dfx, dfy, print_out=False):
     fit_score = clf.score(dfx, dfy)
     if print_out:
         print("params", clf.get_params())
-        print("fit done, score %.5f" % fit_score)
+        print("fit score %.5f" % fit_score)
     return fit_score
 
 def do_predict(clf, test_X, test_y, print_out=False):
@@ -135,13 +139,79 @@ def time_fit_pred(clf, dfx, dfy, var='TF', num=10, rp=3):
         do_predict(clf, dfx, dfy['Y'])
     
     if var=='Y':
-        tfit  = min(timeit.repeat(fit_clf_multi, number=num)) * 1e3 / num
-        tpred = min(timeit.repeat(predict_clf_multi, number=num)) * 1e3 / num
+        tfit  = min(timeit.repeat(fit_clf_multi, repeat=rp, number=num))
+        tpred = min(timeit.repeat(predict_clf_multi, number=num))
     else:
-        tfit  = min(timeit.repeat(fit_clf, number=num)) * 1e3 / num
-        tpred = min(timeit.repeat(predict_clf, number=num)) * 1e3 / num
+        tfit  = min(timeit.repeat(fit_clf, repeat=rp, number=num))
+        tpred = min(timeit.repeat(predict_clf, number=num))
+    tfit = tfit * 1e3 / num
+    tpred = tpred * 1e3 / num
 
     return tfit, tpred
+
+def cross_validate(clf, dfx, dfy, cv=10, print_out=False):
+    "cross-validate fit scores on training data"
+    scores = cross_validation.cross_val_score(clf, dfx, dfy, cv=cv)
+    score = np.mean(scores)
+    score_std = np.std(scores)
+    if print_out:
+        print("CV scores mean %.5f +- %.5f" % (score, 2.0 * score_std))
+#        print("CV raw scores", scores)
+    return score, score_std, scores
+
+def time_cv(clf, dfx, dfy, var='TF', num=10, rp=3):
+    '''time cross validation fit with classifier clf on training set dfx, dfy
+       using num loops and rp repeats'''
+    
+    # time is usually ~10 times longer than fit (cv=10)
+    
+    # dfy['TF'] has two states (0, 1)
+    def cv_fit_clf():
+        cross_validate(clf, dfx, dfy['TF'])
+    
+    # dfy['Y'] has six states (1-6)
+    def cv_fit_clf_multi():
+        cross_validate(clf, dfx, dfy['Y'])
+    
+    if var=='Y':
+        tfit  = min(timeit.repeat(cv_fit_clf_multi, repeat=rp, number=num))
+    else:
+        tfit  = min(timeit.repeat(cv_fit_clf, repeat=rp, number=num))
+    tfit = tfit * 1e3 / num
+
+    return tfit
+
+def time_size_fit_predict(clf, dftrain, dftrain_y, rowf=4, colf=4, num=10):
+    dfx, dfy = get_partial_data(dftrain, dftrain_y, rowf, colf)
+    tfit, tpred = time_fit_pred(clf, dfx, dfy, num)
+    return tfit, tpred, dfx.shape
+
+def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4,2,1], num=10):
+    '''Time fit, predict for classifier clf for arrayed columns or rows.
+       The axis parameter is 0 for row, 1 for column array, as in pandas.'''
+
+    print()
+    fits = []
+    preds = []
+    shapes = []
+    # do one warmup, does not help
+#    time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=4, num=num)
+    if axis==1:
+        for col in arr:
+            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=num)
+            print("df size %s clf time: fit %.3f ms, predict %.3f ms" % (shape, tfit, tpred))
+            fits.append(tfit)
+            preds.append(tpred)
+            shapes.append(shape)
+    else:
+        for row in arr:
+            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=num)
+            print("df size %s clf time: fit %.3f ms, predict %.3f ms" % (shape, tfit, tpred))
+            fits.append(tfit)
+            preds.append(tpred)
+            shapes.append(shape)
+    
+    return {'axis':axis, 'fit':fits, 'pred':preds, 'shape':shapes}
 
 
 def main():
@@ -156,6 +226,16 @@ def main():
     
     tfit, tpred = time_fit_pred(clf, dfx, dfy, num=30)
     print("df shape %s svm time: fit %.3f ms, predict %.3f ms" % (dfx.shape, tfit, tpred))
+    
+    cross_validate(clf, dfx, dfy['TF'], print_out=True)
+    tcv = time_cv(clf, dfx, dfy, num=30)
+    print("df shape %s svm time: cv %.3f ms" % (dfx.shape, tcv))
+    
+    clf = svm.SVC(kernel='linear', C=1, cache_size=1000)
+        
+    time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=10)
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=10)
+    print("result", result)
 
 if __name__ == '__main__':
     main()
