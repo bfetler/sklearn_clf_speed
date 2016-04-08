@@ -118,10 +118,11 @@ def do_predict(clf, test_X, test_y, print_out=False):
           (pred_score, pred_correct, test_y.shape[0]))
     return pred_y, pred_score
 
-def time_fit_pred(clf, dfx, dfy, var='TF', num=10, rp=3):
+def time_fit_predict(clf, dfx, dfy, var='TF', num=10, rp=3):
     '''time fit and predict with classifier clf on training set dfx, dfy
        using num loops and rp repeats'''
-    
+
+    print("time_fit_predict: var", var)    
     # dfy['TF'] has two states (0, 1)
     def fit_clf():
         do_fit(clf, dfx, dfy['TF'])
@@ -180,29 +181,31 @@ def time_cv(clf, dfx, dfy, var='TF', num=10, rp=3):
 
     return tfit
 
-def time_size_fit_predict(clf, dftrain, dftrain_y, rowf=4, colf=4, num=10):
+def time_size_fit_predict(clf, dftrain, dftrain_y, rowf=4, colf=4, num=10, var='TF'):
+#    print("time_size_fit_predict: num", num)
     dfx, dfy = get_partial_data(dftrain, dftrain_y, rowf, colf)
-    tfit, tpred = time_fit_pred(clf, dfx, dfy, num)
+    tfit, tpred = time_fit_predict(clf, dfx, dfy, var, num)
     return tfit, tpred, dfx.shape
 
-def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4,2,1], num=10):
+def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4,2,1], num=10, var='TF'):
     '''Time fit, predict for classifier clf for arrayed columns or rows.
        The axis parameter is 0 for row, 1 for column array, as in pandas.'''
 
     fits = []
     preds = []
     shapes = []
-    # do one warmup, does not help
-#    time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=4, num=num)
     if axis==1:
         for col in arr:
-            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=num)
+            numc = int(num * col / min(arr))    # num calc
+            # from timing, not linear, maybe quadratic, depends on clf
+            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=numc, var=var)
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
     else:
         for row in arr:
-            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=num)
+            numc = int(num * row / min(arr))    # num calc
+            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=numc, var=var)
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
@@ -238,7 +241,7 @@ def main():
     do_fit(clf, dfx, dfy['TF'], print_out=True)
     do_predict(clf, dfx, dfy['TF'], print_out=True)  # should run on test data
     
-    tfit, tpred = time_fit_pred(clf, dfx, dfy, num=30)
+    tfit, tpred = time_fit_predict(clf, dfx, dfy, num=30)
     print("df shape %s svm time: fit %.3f ms, predict %.3f ms" % (dfx.shape, tfit, tpred))
     
 #    cross_validate(clf, dfx, dfy['TF'], print_out=True)
@@ -249,8 +252,8 @@ def main():
     
     clf = svm.SVC(kernel='linear', C=1, cache_size=1000)
     
-    nn = 100
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn)
+    nn = 10
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='TF')
     print_time_results(result)
     plot_time_results(result, "SVM", "medium_columns_svm", plotdir)
     
@@ -258,6 +261,7 @@ def main():
     print_time_results(result)
     plot_time_results(result, "SVM", "medium_rows_svm", plotdir)
     
+    # seems to be exceedingly slow since adding var
     a1 = [64,32,22,16,11,8,6,4,3,2,1.4,1]
     result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
     print_time_results(result)
@@ -268,7 +272,11 @@ def main():
     print_time_results(result)
     plot_time_results(result, "SVM", "large_rows_svm", plotdir)
     
-# to do: increase num and rp for smaller datasets?
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
+    print_time_results(result)
+    plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
+    
+# to do: increase num and rp for smaller datasets?  try rp=10?
     # fix plot limits
     # use test data for predict
     # add more classifiers
