@@ -79,8 +79,8 @@ def get_partial_data(dfbig_X, dfbig_y, rowf=4, colf=4, printOut=False):
     
     oldrow = dfbig_X.shape[0]
     oldcol = dfbig_X.shape[1]
-    newrow = (oldrow+1) // rowf
-    newcol = (oldcol+1) // colf
+    newrow = int((oldrow+1) / rowf)
+    newcol = int((oldcol+1) / colf)
 #    print("newrow %d oldrow %d, newcol %d oldcol %d" % (newrow, oldrow, newcol, oldcol))
     
     cols = map(lambda k: "x" + str(k-1), range(newcol, oldcol))
@@ -122,7 +122,6 @@ def time_fit_pred(clf, dfx, dfy, var='TF', num=10, rp=3):
     '''time fit and predict with classifier clf on training set dfx, dfy
        using num loops and rp repeats'''
     
-    # if I use dfy[var] fit sometimes twice as long
     # dfy['TF'] has two states (0, 1)
     def fit_clf():
         do_fit(clf, dfx, dfy['TF'])
@@ -140,10 +139,10 @@ def time_fit_pred(clf, dfx, dfy, var='TF', num=10, rp=3):
     
     if var=='Y':
         tfit  = min(timeit.repeat(fit_clf_multi, repeat=rp, number=num))
-        tpred = min(timeit.repeat(predict_clf_multi, number=num))
+        tpred = min(timeit.repeat(predict_clf_multi, repeat=rp, number=num))
     else:
         tfit  = min(timeit.repeat(fit_clf, repeat=rp, number=num))
-        tpred = min(timeit.repeat(predict_clf, number=num))
+        tpred = min(timeit.repeat(predict_clf, repeat=rp, number=num))
     tfit = tfit * 1e3 / num
     tpred = tpred * 1e3 / num
 
@@ -190,7 +189,6 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     '''Time fit, predict for classifier clf for arrayed columns or rows.
        The axis parameter is 0 for row, 1 for column array, as in pandas.'''
 
-    print()
     fits = []
     preds = []
     shapes = []
@@ -199,20 +197,36 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     if axis==1:
         for col in arr:
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=num)
-            print("df size %s clf time: fit %.3f ms, predict %.3f ms" % (shape, tfit, tpred))
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
     else:
         for row in arr:
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=num)
-            print("df size %s clf time: fit %.3f ms, predict %.3f ms" % (shape, tfit, tpred))
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
     
     return {'axis':axis, 'fit':fits, 'pred':preds, 'shape':shapes}
 
+def print_time_results(result):
+    print()
+    for s, f, p in zip(result['shape'], result['fit'], result['pred']):
+        print("df shape %s %d, time: fit %.3f ms, predict %.3f ms, ratio %.3f" %
+            (s, s[result['axis']], f, p, p / f ))
+
+def plot_time_results(result, app, label, plotdir):
+    plt.clf()
+    xs = [e[result['axis']] for e in result['shape']]
+    plt.scatter(xs, result['fit'], c="blue", s=30, edgecolors="face")
+    plt.scatter(xs, result['pred'], c="red", s=30, edgecolors="face")
+#    plt.ylim(0, ymax)  # how to find ymax
+    plt.legend(['Fit', 'Predict'], loc='upper left')
+    plt.title(app+" Classifier Time")
+    axis = 'Columns' if result['axis']==1 else 'Rows'
+    plt.xlabel("Size (Number of "+axis+")")
+    plt.ylabel("Time (ms)")
+    plt.savefig(plotdir + "time_" + label + ".png")
 
 def main():
     datadir = get_datadir()
@@ -227,15 +241,39 @@ def main():
     tfit, tpred = time_fit_pred(clf, dfx, dfy, num=30)
     print("df shape %s svm time: fit %.3f ms, predict %.3f ms" % (dfx.shape, tfit, tpred))
     
-    cross_validate(clf, dfx, dfy['TF'], print_out=True)
-    tcv = time_cv(clf, dfx, dfy, num=30)
-    print("df shape %s svm time: cv %.3f ms" % (dfx.shape, tcv))
+#    cross_validate(clf, dfx, dfy['TF'], print_out=True)
+#    tcv = time_cv(clf, dfx, dfy, num=30)
+#    print("df shape %s svm time: cv %.3f ms" % (dfx.shape, tcv))
+    
+    plotdir = make_plotdir()
     
     clf = svm.SVC(kernel='linear', C=1, cache_size=1000)
-        
-    time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=10)
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=10)
-    print("result", result)
+    
+    nn = 100
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn)
+    print_time_results(result)
+    plot_time_results(result, "SVM", "medium_columns_svm", plotdir)
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=nn)
+    print_time_results(result)
+    plot_time_results(result, "SVM", "medium_rows_svm", plotdir)
+    
+    a1 = [64,32,22,16,11,8,6,4,3,2,1.4,1]
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
+    print_time_results(result)
+    plot_time_results(result, "SVM", "large_columns_svm", plotdir)
+    
+    a1 = [32,22,16,11,8,6,4,3,2,1.4,1]
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=1, arr=a1, num=nn)
+    print_time_results(result)
+    plot_time_results(result, "SVM", "large_rows_svm", plotdir)
+    
+# to do: increase num and rp for smaller datasets?
+    # fix plot limits
+    # use test data for predict
+    # add more classifiers
+    # try six-way classifier
+    # fit results to linear, quadratic?  ignore short time pts, unreliable?
 
 if __name__ == '__main__':
     main()
