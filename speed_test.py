@@ -197,28 +197,31 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     fits = []
     preds = []
     shapes = []
-    numc = num
+#    numc = num
     if axis==1:
         for col in arr:
-#            numc = int(num * col / min(arr))    # num calc
+            numc = int(num * col / min(arr))    # num calc
         # increase rp instead of num??
             # from timing, not linear, maybe quadratic, depends on clf
+            print(".", end="", flush=True)
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=numc, var=var)
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
+        print("  columns")
     else:
         for row in arr:
-#            numc = int(num * row / min(arr))    # num calc
+            numc = int(num * row / min(arr))    # num calc
+            print(".", end="", flush=True)
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=numc, var=var)
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
-    
+        print("  rows")
+
     return {'axis':axis, 'fit':fits, 'pred':preds, 'shape':shapes}
 
 def print_time_results(result):
-    print()
     for s, f, p in zip(result['shape'], result['fit'], result['pred']):
         print("df shape %s %d, time: fit %.3f ms, predict %.3f ms, ratio %.3f" %
             (s, s[result['axis']], f, p, p / f ))
@@ -239,21 +242,53 @@ def plot_time_results(result, app, label, plotdir):
     plt.savefig(plotdir + "time_" + label + ".png")
 
 def init_data():
+    "initialize dataframe"
     datadir = get_datadir()
     dftrain, dftrain_y = read_train_data(datadir)
     return dftrain, dftrain_y
 
 def speed_test_medium(clf, dftrain, dftrain_y, atitle, afile, plotdir):
-    print("\nstarting medium-size speed test with %s" % atitle)
+    "speed test on binary classifier clf with medium size rows and columns" 
     
+    print("\nstarting medium-size speed test with %s" % atitle)
     nn = 10
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='TF')
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn)
     print_time_results(result)
-    plot_time_results(result, atitle, "medium_columns_"+afile, plotdir)
+    plot_time_results(result, atitle, afile+"_medium_columns", plotdir)
     
     result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=nn)
     print_time_results(result)
-    plot_time_results(result, atitle, "medium_rows_"+afile, plotdir)
+    plot_time_results(result, atitle, afile+"_medium_rows", plotdir)
+
+def speed_test_large(clf, dftrain, dftrain_y, atitle, afile, plotdir):
+    "speed test on binary classifier clf with large size rows and columns"
+    
+    print("\nstarting large-size speed test with %s" % atitle)
+    nn = 10
+    a1 = [32,22,16,11,8,6,4,3,2,1.4,1]
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
+    print_time_results(result)
+    plot_time_results(result, atitle, afile+"_large_columns", plotdir)
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=1, arr=a1, num=nn)
+    print_time_results(result)
+    plot_time_results(result, atitle, afile+"_large_rows", plotdir)
+
+def speed_test_medium_six(clf, dftrain, dftrain_y, atitle, afile, plotdir):
+    "speed test on six-way classifier clf with medium size rows and columns"
+    
+    print("\nstarting medium-size six-way speed test with %s" % atitle)
+    nn = 10
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
+    print_time_results(result)
+    plot_time_results(result, atitle, afile+"_6w_medium_columns", plotdir)
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=nn, var='Y')
+    print_time_results(result)
+    plot_time_results(result, atitle, afile+"_6w_medium_rows", plotdir)
 
 def main():
     datadir = get_datadir()
@@ -296,9 +331,9 @@ def main():
     print_time_results(result)
     plot_time_results(result, "SVM", "large_rows_svm", plotdir)
     
-#    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
-#    print_time_results(result)
-#    plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
+    print_time_results(result)
+    plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
     
 # to do: for smaller datasets, increase num (done).  
     # for smaller datasets, try scaling rp or rp=10?
