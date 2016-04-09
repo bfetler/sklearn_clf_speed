@@ -4,6 +4,7 @@ import timeit
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn import svm, cross_validation
 import os
 
@@ -25,6 +26,9 @@ def get_plotdir():
 
 def make_plotdir():
     "make plot directory on file system"
+    sns.set_style("darkgrid")
+#    sns.set_context("talk")
+    sns.set_context("notebook", font_scale=1.5)
     plotdir = get_plotdir()  # add plotdir arg
     if not os.access(plotdir, os.F_OK):
         os.mkdir(plotdir)
@@ -122,7 +126,7 @@ def time_fit_predict(clf, dfx, dfy, var='TF', num=10, rp=3):
     '''time fit and predict with classifier clf on training set dfx, dfy
        using num loops and rp repeats'''
 
-    print("time_fit_predict: var", var)    
+#    print("time_fit_predict: var", var)
     # dfy['TF'] has two states (0, 1)
     def fit_clf():
         do_fit(clf, dfx, dfy['TF'])
@@ -194,9 +198,10 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     fits = []
     preds = []
     shapes = []
+    numc = num
     if axis==1:
         for col in arr:
-            numc = int(num * col / min(arr))    # num calc
+#            numc = int(num * col / min(arr))    # num calc
             # from timing, not linear, maybe quadratic, depends on clf
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=numc, var=var)
             fits.append(tfit)
@@ -204,7 +209,7 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
             shapes.append(shape)
     else:
         for row in arr:
-            numc = int(num * row / min(arr))    # num calc
+#            numc = int(num * row / min(arr))    # num calc
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=numc, var=var)
             fits.append(tfit)
             preds.append(tpred)
@@ -221,14 +226,16 @@ def print_time_results(result):
 def plot_time_results(result, app, label, plotdir):
     plt.clf()
     xs = [e[result['axis']] for e in result['shape']]
-    plt.scatter(xs, result['fit'], c="blue", s=30, edgecolors="face")
-    plt.scatter(xs, result['pred'], c="red", s=30, edgecolors="face")
+    plt.scatter(xs, result['fit'], s=60, c="blue", edgecolors="face")  # s=30
+    plt.scatter(xs, result['pred'], s=60, c="red", edgecolors="face")
 #    plt.ylim(0, ymax)  # how to find ymax
     plt.legend(['Fit', 'Predict'], loc='upper left')
     plt.title(app+" Classifier Time")
     axis = 'Columns' if result['axis']==1 else 'Rows'
     plt.xlabel("Size (Number of "+axis+")")
     plt.ylabel("Time (ms)")
+#    plt.figure(figsize=(8, 6))
+    plt.tight_layout()
     plt.savefig(plotdir + "time_" + label + ".png")
 
 def main():
@@ -280,7 +287,7 @@ def main():
     # fix plot limits
     # use test data for predict
     # add more classifiers
-    # try six-way classifier
+    # try six-way classifier (done, ~10 times slower at first glance)
     # fit results to linear, quadratic?  ignore short time pts, unreliable?
 
 if __name__ == '__main__':
