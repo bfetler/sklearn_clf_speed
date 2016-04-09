@@ -21,14 +21,13 @@ def get_datadir():
     return "data/UCI_HAR_Dataset/"
 
 def get_plotdir():
-    "get plot directory"
+    "get plot directory, set seaborn plot params"
+    sns.set_style("darkgrid")
+    sns.set_context("notebook", font_scale=1.5)
     return 'speed_plots/'
 
 def make_plotdir():
     "make plot directory on file system"
-    sns.set_style("darkgrid")
-#    sns.set_context("talk")
-    sns.set_context("notebook", font_scale=1.5)
     plotdir = get_plotdir()  # add plotdir arg
     if not os.access(plotdir, os.F_OK):
         os.mkdir(plotdir)
@@ -202,6 +201,7 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     if axis==1:
         for col in arr:
 #            numc = int(num * col / min(arr))    # num calc
+        # increase rp instead of num??
             # from timing, not linear, maybe quadratic, depends on clf
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=numc, var=var)
             fits.append(tfit)
@@ -226,17 +226,34 @@ def print_time_results(result):
 def plot_time_results(result, app, label, plotdir):
     plt.clf()
     xs = [e[result['axis']] for e in result['shape']]
-    plt.scatter(xs, result['fit'], s=60, c="blue", edgecolors="face")  # s=30
-    plt.scatter(xs, result['pred'], s=60, c="red", edgecolors="face")
-#    plt.ylim(0, ymax)  # how to find ymax
+    plt.scatter(xs, result['fit'], c="blue", edgecolors="face", s=60)
+    plt.scatter(xs, result['pred'], c="red", edgecolors="face", s=60)
+    x1, x2, y1, y2 = plt.axis()
+    plt.axis((0, x2, 0, y2))     # set minx, miny = 0
     plt.legend(['Fit', 'Predict'], loc='upper left')
     plt.title(app+" Classifier Time")
     axis = 'Columns' if result['axis']==1 else 'Rows'
     plt.xlabel("Size (Number of "+axis+")")
     plt.ylabel("Time (ms)")
-#    plt.figure(figsize=(8, 6))
     plt.tight_layout()
     plt.savefig(plotdir + "time_" + label + ".png")
+
+def init_data():
+    datadir = get_datadir()
+    dftrain, dftrain_y = read_train_data(datadir)
+    return dftrain, dftrain_y
+
+def speed_test_medium(clf, dftrain, dftrain_y, atitle, afile, plotdir):
+    print("\nstarting medium-size speed test with %s" % atitle)
+    
+    nn = 10
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='TF')
+    print_time_results(result)
+    plot_time_results(result, atitle, "medium_columns_"+afile, plotdir)
+    
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=nn)
+    print_time_results(result)
+    plot_time_results(result, atitle, "medium_rows_"+afile, plotdir)
 
 def main():
     datadir = get_datadir()
@@ -279,12 +296,12 @@ def main():
     print_time_results(result)
     plot_time_results(result, "SVM", "large_rows_svm", plotdir)
     
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
-    print_time_results(result)
-    plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
+#    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
+#    print_time_results(result)
+#    plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
     
-# to do: increase num and rp for smaller datasets?  try rp=10?
-    # fix plot limits
+# to do: for smaller datasets, increase num (done).  
+    # for smaller datasets, try scaling rp or rp=10?
     # use test data for predict
     # add more classifiers
     # try six-way classifier (done, ~10 times slower at first glance)
