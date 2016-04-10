@@ -197,10 +197,10 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     fits = []
     preds = []
     shapes = []
-#    numc = num
+    numc = num
     if axis==1:
         for col in arr:
-            numc = int(num * col / min(arr))    # num calc
+#            numc = int(num * col / min(arr))    # num calc
         # increase rp instead of num??
             # from timing, not linear, maybe quadratic, depends on clf
             print(".", end="", flush=True)
@@ -211,7 +211,7 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
         print("  columns")
     else:
         for row in arr:
-            numc = int(num * row / min(arr))    # num calc
+#            numc = int(num * row / min(arr))    # num calc
             print(".", end="", flush=True)
             tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=numc, var=var)
             fits.append(tfit)

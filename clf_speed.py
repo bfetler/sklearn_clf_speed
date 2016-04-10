@@ -44,9 +44,9 @@ def main():
     dftrain, dftrain_y = init_data() 
     
     logistic_regression_speed_test(dftrain, dftrain_y, plotdir)
-#    naive_bayes_speed_test(dftrain, dftrain_y, plotdir)
+    naive_bayes_speed_test(dftrain, dftrain_y, plotdir)
     linear_svm_speed_test(dftrain, dftrain_y, plotdir)
-#    svm_speed_test(dftrain, dftrain_y, plotdir)
+    svm_speed_test(dftrain, dftrain_y, plotdir)
 
 if __name__ == '__main__':
     main()
