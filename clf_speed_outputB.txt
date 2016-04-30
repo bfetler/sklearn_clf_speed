@@ -1,0 +1,108 @@
+date / time: 2016-04-29  19:57
+
+starting large-size speed test with Logistic Regression
+...........  rows
+df shape (225, 512) 225, time: fit 12.753 ms, predict 0.940 ms, ratio 0.074
+df shape (327, 512) 327, time: fit 22.136 ms, predict 1.350 ms, ratio 0.061
+df shape (450, 512) 450, time: fit 34.511 ms, predict 2.286 ms, ratio 0.066
+df shape (654, 512) 654, time: fit 49.467 ms, predict 3.176 ms, ratio 0.064
+df shape (900, 512) 900, time: fit 71.110 ms, predict 4.884 ms, ratio 0.069
+df shape (1200, 512) 1200, time: fit 94.734 ms, predict 5.472 ms, ratio 0.058
+df shape (1800, 512) 1800, time: fit 138.104 ms, predict 7.982 ms, ratio 0.058
+df shape (2400, 512) 2400, time: fit 240.568 ms, predict 10.381 ms, ratio 0.043
+df shape (3600, 512) 3600, time: fit 387.469 ms, predict 16.426 ms, ratio 0.042
+df shape (5143, 512) 5143, time: fit 550.929 ms, predict 25.580 ms, ratio 0.046
+df shape (7200, 512) 7200, time: fit 761.858 ms, predict 34.830 ms, ratio 0.046
+/Users/bfetler/anaconda/envs/pyana3/lib/python3.5/site-packages/matplotlib/tight_layout.py:222: UserWarning: tight_layout : falling back to Agg renderer
+  warnings.warn("tight_layout : falling back to Agg renderer")
+...........  columns
+df shape (7200, 16) 16, time: fit 20.319 ms, predict 14.517 ms, ratio 0.714
+df shape (7200, 23) 23, time: fit 27.772 ms, predict 14.771 ms, ratio 0.532
+df shape (7200, 32) 32, time: fit 42.933 ms, predict 15.669 ms, ratio 0.365
+df shape (7200, 46) 46, time: fit 64.990 ms, predict 16.052 ms, ratio 0.247
+df shape (7200, 64) 64, time: fit 128.934 ms, predict 16.353 ms, ratio 0.127
+df shape (7200, 85) 85, time: fit 138.728 ms, predict 18.080 ms, ratio 0.130
+df shape (7200, 128) 128, time: fit 199.208 ms, predict 20.043 ms, ratio 0.101
+df shape (7200, 171) 171, time: fit 252.915 ms, predict 19.753 ms, ratio 0.078
+df shape (7200, 256) 256, time: fit 389.059 ms, predict 23.901 ms, ratio 0.061
+df shape (7200, 366) 366, time: fit 548.884 ms, predict 31.343 ms, ratio 0.057
+df shape (7200, 512) 512, time: fit 728.289 ms, predict 31.214 ms, ratio 0.043
+
+starting large-size speed test with Naive Bayes
+...........  rows
+df shape (225, 512) 225, time: fit 5.073 ms, predict 2.820 ms, ratio 0.556
+df shape (327, 512) 327, time: fit 6.917 ms, predict 4.153 ms, ratio 0.600
+df shape (450, 512) 450, time: fit 13.387 ms, predict 8.614 ms, ratio 0.643
+df shape (654, 512) 654, time: fit 21.297 ms, predict 12.657 ms, ratio 0.594
+df shape (900, 512) 900, time: fit 30.606 ms, predict 16.765 ms, ratio 0.548
+df shape (1200, 512) 1200, time: fit 37.173 ms, predict 18.226 ms, ratio 0.490
+df shape (1800, 512) 1800, time: fit 62.621 ms, predict 34.493 ms, ratio 0.551
+df shape (2400, 512) 2400, time: fit 85.072 ms, predict 48.820 ms, ratio 0.574
+df shape (3600, 512) 3600, time: fit 122.966 ms, predict 72.382 ms, ratio 0.589
+df shape (5143, 512) 5143, time: fit 175.757 ms, predict 108.487 ms, ratio 0.617
+df shape (7200, 512) 7200, time: fit 264.411 ms, predict 150.872 ms, ratio 0.571
+...........  columns
+df shape (7200, 16) 16, time: fit 5.806 ms, predict 14.931 ms, ratio 2.572
+df shape (7200, 23) 23, time: fit 8.518 ms, predict 16.230 ms, ratio 1.905
+df shape (7200, 32) 32, time: fit 15.005 ms, predict 20.136 ms, ratio 1.342
+df shape (7200, 46) 46, time: fit 21.060 ms, predict 24.182 ms, ratio 1.148
+df shape (7200, 64) 64, time: fit 31.050 ms, predict 29.695 ms, ratio 0.956
+df shape (7200, 85) 85, time: fit 40.316 ms, predict 33.953 ms, ratio 0.842
+df shape (7200, 128) 128, time: fit 59.355 ms, predict 44.936 ms, ratio 0.757
+df shape (7200, 171) 171, time: fit 89.189 ms, predict 58.748 ms, ratio 0.659
+df shape (7200, 256) 256, time: fit 122.859 ms, predict 80.753 ms, ratio 0.657
+df shape (7200, 366) 366, time: fit 175.749 ms, predict 104.300 ms, ratio 0.593
+df shape (7200, 512) 512, time: fit 253.704 ms, predict 138.063 ms, ratio 0.544
+
+starting large-size speed test with Linear SVC
+...........  rows
+df shape (225, 512) 225, time: fit 15.127 ms, predict 0.930 ms, ratio 0.062
+df shape (327, 512) 327, time: fit 17.279 ms, predict 1.314 ms, ratio 0.076
+df shape (450, 512) 450, time: fit 30.079 ms, predict 2.234 ms, ratio 0.074
+df shape (654, 512) 654, time: fit 30.520 ms, predict 3.228 ms, ratio 0.106
+df shape (900, 512) 900, time: fit 42.017 ms, predict 4.396 ms, ratio 0.105
+df shape (1200, 512) 1200, time: fit 47.865 ms, predict 5.464 ms, ratio 0.114
+df shape (1800, 512) 1800, time: fit 68.411 ms, predict 8.189 ms, ratio 0.120
+df shape (2400, 512) 2400, time: fit 88.669 ms, predict 11.574 ms, ratio 0.131
+df shape (3600, 512) 3600, time: fit 123.015 ms, predict 15.913 ms, ratio 0.129
+df shape (5143, 512) 5143, time: fit 178.525 ms, predict 26.940 ms, ratio 0.151
+df shape (7200, 512) 7200, time: fit 236.837 ms, predict 35.605 ms, ratio 0.150
+...........  columns
+df shape (7200, 16) 16, time: fit 63.184 ms, predict 14.677 ms, ratio 0.232
+df shape (7200, 23) 23, time: fit 53.225 ms, predict 14.728 ms, ratio 0.277
+df shape (7200, 32) 32, time: fit 56.109 ms, predict 15.413 ms, ratio 0.275
+df shape (7200, 46) 46, time: fit 51.482 ms, predict 15.651 ms, ratio 0.304
+df shape (7200, 64) 64, time: fit 62.135 ms, predict 16.830 ms, ratio 0.271
+df shape (7200, 85) 85, time: fit 68.302 ms, predict 17.272 ms, ratio 0.253
+df shape (7200, 128) 128, time: fit 77.255 ms, predict 19.735 ms, ratio 0.255
+df shape (7200, 171) 171, time: fit 95.878 ms, predict 19.996 ms, ratio 0.209
+df shape (7200, 256) 256, time: fit 127.080 ms, predict 32.608 ms, ratio 0.257
+df shape (7200, 366) 366, time: fit 173.140 ms, predict 33.529 ms, ratio 0.194
+df shape (7200, 512) 512, time: fit 230.727 ms, predict 42.427 ms, ratio 0.184
+
+starting large-size speed test with SVC
+...........  rows
+df shape (225, 512) 225, time: fit 6.554 ms, predict 2.929 ms, ratio 0.447
+df shape (327, 512) 327, time: fit 10.027 ms, predict 5.007 ms, ratio 0.499
+df shape (450, 512) 450, time: fit 15.550 ms, predict 6.934 ms, ratio 0.446
+df shape (654, 512) 654, time: fit 24.868 ms, predict 10.957 ms, ratio 0.441
+df shape (900, 512) 900, time: fit 34.650 ms, predict 16.121 ms, ratio 0.465
+df shape (1200, 512) 1200, time: fit 48.065 ms, predict 21.832 ms, ratio 0.454
+df shape (1800, 512) 1800, time: fit 65.952 ms, predict 33.255 ms, ratio 0.504
+df shape (2400, 512) 2400, time: fit 100.666 ms, predict 46.021 ms, ratio 0.457
+df shape (3600, 512) 3600, time: fit 186.103 ms, predict 77.699 ms, ratio 0.418
+df shape (5143, 512) 5143, time: fit 266.492 ms, predict 112.744 ms, ratio 0.423
+df shape (7200, 512) 7200, time: fit 394.568 ms, predict 161.787 ms, ratio 0.410
+...........  columns
+df shape (7200, 16) 16, time: fit 66.278 ms, predict 23.017 ms, ratio 0.347
+df shape (7200, 23) 23, time: fit 69.516 ms, predict 25.320 ms, ratio 0.364
+df shape (7200, 32) 32, time: fit 86.024 ms, predict 28.084 ms, ratio 0.326
+df shape (7200, 46) 46, time: fit 77.140 ms, predict 28.156 ms, ratio 0.365
+df shape (7200, 64) 64, time: fit 87.109 ms, predict 30.458 ms, ratio 0.350
+df shape (7200, 85) 85, time: fit 119.146 ms, predict 36.101 ms, ratio 0.303
+df shape (7200, 128) 128, time: fit 128.038 ms, predict 50.157 ms, ratio 0.392
+df shape (7200, 171) 171, time: fit 158.567 ms, predict 63.804 ms, ratio 0.402
+df shape (7200, 256) 256, time: fit 200.729 ms, predict 90.126 ms, ratio 0.449
+df shape (7200, 366) 366, time: fit 305.991 ms, predict 143.253 ms, ratio 0.468
+df shape (7200, 512) 512, time: fit 392.680 ms, predict 163.052 ms, ratio 0.415
+

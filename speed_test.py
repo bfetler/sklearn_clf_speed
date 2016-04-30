@@ -24,7 +24,7 @@ def get_plotdir():
     "get plot directory, set seaborn plot params"
     sns.set_style("darkgrid")
     sns.set_context("notebook", font_scale=1.5)
-    return 'speed_plots/'
+    return 'speed_test_plots/'
 
 def make_plotdir():
     "make plot directory on file system"
@@ -184,10 +184,10 @@ def time_cv(clf, dfx, dfy, var='TF', num=10, rp=3):
 
     return tfit
 
-def time_size_fit_predict(clf, dftrain, dftrain_y, rowf=4, colf=4, num=10, var='TF'):
+def time_size_fit_predict(clf, dftrain, dftrain_y, rowf=4, colf=4, num=10, var='TF', rp=3):
 #    print("time_size_fit_predict: num", num)
     dfx, dfy = get_partial_data(dftrain, dftrain_y, rowf, colf)
-    tfit, tpred = time_fit_predict(clf, dfx, dfy, var, num)
+    tfit, tpred = time_fit_predict(clf, dfx, dfy, var, num, rp)
     return tfit, tpred, dfx.shape
 
 def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4,2,1], num=10, var='TF'):
@@ -198,22 +198,25 @@ def time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, arr=[16,8,4
     preds = []
     shapes = []
     numc = num
+    reps = 3
     if axis==1:
         for col in arr:
-#            numc = int(num * col / min(arr))    # num calc
+#           numc = int(num * col / min(arr))    # num calc
+            rp = int(reps * col / min(arr))    # num calc
         # increase rp instead of num??
             # from timing, not linear, maybe quadratic, depends on clf
             print(".", end="", flush=True)
-            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=numc, var=var)
+            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=fixed, colf=col, num=numc, var=var, rp=rp)
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
         print("  columns")
     else:
         for row in arr:
-#            numc = int(num * row / min(arr))    # num calc
+#           numc = int(num * row / min(arr))    # num calc
+            rp = int(reps * row / min(arr))    # num calc
             print(".", end="", flush=True)
-            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=numc, var=var)
+            tfit, tpred, shape = time_size_fit_predict(clf, dftrain, dftrain_y, rowf=row, colf=fixed, num=numc, var=var, rp=rp)
             fits.append(tfit)
             preds.append(tpred)
             shapes.append(shape)
@@ -232,7 +235,9 @@ def plot_time_results(result, app, label, plotdir):
     plt.scatter(xs, result['fit'], c="blue", edgecolors="face", s=60)
     plt.scatter(xs, result['pred'], c="red", edgecolors="face", s=60)
     x1, x2, y1, y2 = plt.axis()
-    plt.axis((0, x2, 0, y2))     # set minx, miny = 0
+#   ymin = 0
+    ymin = -0.02 * y2     # add space for point size
+    plt.axis((0, x2, ymin, y2))     # set minx, miny = 0
     plt.legend(['Fit', 'Predict'], loc='upper left')
     plt.title(app+" Classifier Time")
     axis = 'Columns' if result['axis']==1 else 'Rows'
@@ -267,15 +272,16 @@ def speed_test_large(clf, dftrain, dftrain_y, atitle, afile, plotdir):
     print("\nstarting large-size speed test with %s" % atitle)
     nn = 10
     a1 = [32,22,16,11,8,6,4,3,2,1.4,1]
-    
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
-    print_time_results(result)
-    plot_time_results(result, atitle, afile+"_large_columns", plotdir)
+#   a1 = [16,11,8,6,4,3,2,1.4,1]
     
     result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=1, arr=a1, num=nn)
     print_time_results(result)
     plot_time_results(result, atitle, afile+"_large_rows", plotdir)
 
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
+    print_time_results(result)
+    plot_time_results(result, atitle, afile+"_large_columns", plotdir)
+    
 def speed_test_medium_six(clf, dftrain, dftrain_y, atitle, afile, plotdir):
     "speed test on six-way classifier clf with medium size rows and columns"
     
@@ -312,28 +318,29 @@ def main():
     clf = svm.SVC(kernel='linear', C=1, cache_size=1000)
     
     nn = 10
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='TF')
-    print_time_results(result)
-    plot_time_results(result, "SVM", "medium_columns_svm", plotdir)
+#   result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='TF')
+#   print_time_results(result)
+#   plot_time_results(result, "SVM", "medium_columns_svm", plotdir)
     
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=nn)
-    print_time_results(result)
-    plot_time_results(result, "SVM", "medium_rows_svm", plotdir)
+#   result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=4, num=nn)
+#   print_time_results(result)
+#   plot_time_results(result, "SVM", "medium_rows_svm", plotdir)
     
     # seems to be exceedingly slow since adding var
-    a1 = [64,32,22,16,11,8,6,4,3,2,1.4,1]
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
-    print_time_results(result)
-    plot_time_results(result, "SVM", "large_columns_svm", plotdir)
-    
-    a1 = [32,22,16,11,8,6,4,3,2,1.4,1]
+#   a1 = [64,32,22,16,11,8,6,4,3,2,1.4,1]
+#   a1 = [32,22,16,11,8,6,4,3,2,1.4,1]
+    a1 = [16,11,8,6,4,3,2,1.4,1]
     result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=0, fixed=1, arr=a1, num=nn)
     print_time_results(result)
-    plot_time_results(result, "SVM", "large_rows_svm", plotdir)
+    plot_time_results(result, "SVC", "large_rows_svc", plotdir)
     
-    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
+    result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=1, arr=a1, num=nn)
     print_time_results(result)
-    plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
+    plot_time_results(result, "SVC", "large_columns_svc", plotdir)
+    
+#   result = time_fit_predict_array(clf, dftrain, dftrain_y, axis=1, fixed=4, num=nn, var='Y')
+#   print_time_results(result)
+#   plot_time_results(result, "SVM", "medium_columnsY_svm", plotdir)
     
 # to do: for smaller datasets, increase num (done).  
     # for smaller datasets, try scaling rp or rp=10?
