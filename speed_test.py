@@ -235,7 +235,6 @@ def plot_time_results(result, app, label, plotdir):
     plt.scatter(xs, result['fit'], c="blue", edgecolors="face", s=60)
     plt.scatter(xs, result['pred'], c="red", edgecolors="face", s=60)
     x1, x2, y1, y2 = plt.axis()
-#   ymin = 0
     ymin = -0.02 * y2     # add space for point size
     plt.axis((0, x2, ymin, y2))     # set minx, miny = 0
     plt.legend(['Fit', 'Predict'], loc='upper left')
