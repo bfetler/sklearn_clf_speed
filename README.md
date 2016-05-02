@@ -45,5 +45,5 @@ Of the classifiers tried, *Logistic Regression* and *LinearSVC* had the quickest
 There is quite a bit of jitter in the data, probably due to not sampling the methods enough times with *timeit*.  The script __clf_speed.py__ runs a series of timing tests, and takes 20 to 30 minutes to run.  I get impatient waiting for it to finish, but could probably increase the time.  It would probably be best to run these on a Linux system rather than MacOS, so the OS doesn't get busy with randomly scheduled updating tasks.  
 
 #### Conclusion
-*Logistic Regression* and *LinearSVC* have the fastest *predict()* methods, and are probably best for production systems.  Whether or not they are appropriate for solving a particular problem depends on the data set and questions to be answered.  Other classifiers may be more appropriate, depending on the nature of the data, though one should be careful to measure their speed as needed.
+*Logistic Regression* and *LinearSVC* have the fastest *predict()* methods, and are probably best for production systems.  Whether or not they are appropriate for solving a particular problem depends on the data set and the problems to be solved.  Other classifiers may be more appropriate, depending on the nature of the data, though one should be careful to measure their speed.
 
