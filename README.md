@@ -15,8 +15,10 @@ The Scikit-learn classifier API has a number of common methods for a classifier 
 + *clf.fit()* : apply to training data, fits model
 + *clf.predict()* : apply to test data, predicts *y* given *X*
 
-#### Speed Tests
-Speed tests were performed on the *fit()* and *predict()* methods for several classifiers.  The [Human Activity Recognition Using Smartphones Data Set](https://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones) from UC Irvine was chosen since it has 561 columns and 7352 rows.  The data was pared down to 512 columns and 7200 rows, and subsets of the data with logarithmic size were used for speed tests.  Timing was done using Python's [timeit](https://docs.python.org/3.5/library/timeit.html) module.
+#### Methods
+Speed tests were performed on the *fit()* and *predict()* methods for several classifiers.  The [Human Activity Recognition Using Smartphones Data Set](https://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones) from UC Irvine was chosen since it has 561 columns and 7352 rows.  The data was pared down to 512 columns and 7200 rows.  Since we were concerned only with speed tests and not prediction accuracy, the same data was used for training and testing.  
+
+Subsets of the data of logarithmic size were used for speed tests.  The number of rows varied between 225 and 7200 with 512 columns, while the number of columns varied between 16 and 512 with 7200 rows.  Timing was done using Python's [timeit](https://docs.python.org/3.5/library/timeit.html) module.  Tests were run on a MacBook Air with dual core 1.4GHz Intel i5 processors.
 
 #### Results
 Several different algorithms were tested.
