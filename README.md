@@ -36,7 +36,7 @@ Several different algorithms were tested.
 <img src="https://github.com/bfetler/sklearn_clf_speed/blob/master/speed_test_plots/clf_time_column_predict.png" alt="clf predict columns" />
 
 #### Discussion
-For these tests, *predict()* is more important for production than *fit()*, since data modeling and fit usually occurs off-line with a well-known data set by a data scientist.  Data prediction speed needs to be fast, to handle more incoming data sets, and with a faster turnaround time.  Fast prediction should minimize bottlenecks in data throughput.  
+For production systems, *predict()* is more important than *fit()*, since data modeling and fit usually occurs off-line with a well-known data set by a data scientist.  Data prediction speed needs to be fast, to handle incoming data sets more frequently, and with a faster turnaround time.  Fast prediction should minimize processing bottlenecks in data throughput.  
 
 Of the classifiers tried, *Logistic Regression* and *LinearSVC* had the quickest *predict()* times, and were comparable to each other.  *LinearSVC* also had one of the quickest *fit()* times, while *Logistic Regression* had the slowest *fit()*.
 
