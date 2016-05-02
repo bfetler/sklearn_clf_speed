@@ -35,3 +35,15 @@ Several different algorithms were tested.
 
 <img src="https://github.com/bfetler/sklearn_clf_speed/blob/master/speed_test_plots/clf_time_column_predict.png" alt="clf predict columns" />
 
+#### Discussion
+For these tests, *predict()* is more important for production than *fit()*, since data modeling and fit usually occurs off-line with a well-known data set by a data scientist.  Data prediction speed needs to be fast, to handle more incoming data sets, and with a faster turnaround time.  Fast prediction should minimize bottlenecks in data throughput.  
+
+Of the classifiers tried, *Logistic Regression* and *LinearSVC* had the quickest *predict()* times, and were comparable to each other.  *LinearSVC* also had one of the quickest *fit()* times, while *Logistic Regression* had the slowest *fit()*.
+
+*Naive Bayes* had a slow *predict()* time, although the *fit()* time was reasonably quick.  Most of the classifiers appear roughly linear in time.  It's difficult to see the alleged *O(n^2)* behavior of *SVC*, although it is certainly slower than *LinearSVC*.  I could try to find a larger data set to see the full behavior.
+
+There is quite a bit of jitter in the data, probably due to not sampling the methods enough times with *timeit*.  The script __clf_speed.py__ runs a series of timing tests, and takes 20 to 30 minutes to run.  I get impatient waiting for it to finish, but could probably increase the time.  It would probably be best to run these on a Linux system rather than MacOS, so the OS doesn't get busy with randomly scheduled updating tasks.  
+
+#### Conclusion
+*Logistic Regression* and *LinearSVC* have the fastest *predict()* methods, and are probably best for production systems.  Whether or not they are appropriate for solving a particular problem depends on the data set and questions to be answered.  Other classifiers may be more appropriate, depending on the nature of the data, though one should be careful to measure their speed as needed.
+
